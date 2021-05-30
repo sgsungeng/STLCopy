@@ -1,0 +1,112 @@
+#ifndef _GLIBCXX_TYPE_TRAITS
+#define _GLIBCXX_TYPE_TRAITS 1
+
+#pragma GCC system_header
+
+#if __cplusplus <201103L
+#include "bits/c++0x_warning.h"
+#else
+#include "bits/c++config.h"
+
+namespace mstd _GLIBCXX_VOSOBILOTY(default)
+{
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
+
+/// integral_constan
+template<typename _Tp,_Tp __v>
+struct integral_constant{
+    static constexpr _Tp                value = __v;
+    typedef _Tp                         value_type;
+    typedef integral_constant<_Tp, __v> type;
+    constexpr operator valuetype() const noexcept {return value;}
+
+#if __cplusplus > 201103L
+#define _cpp_lib_integral_constant_callable 201304
+constexpr value_type operator()() const noexcept {return value;}
+#endif
+};
+template<typename _Tp, _Tp __v>
+constexpr _Tp integral_constant<_Tp, __v>::value;
+
+typedef integral_constant<bool, true>     true_type;
+
+typedef integral_constant<bool, false>    false_type;
+
+template<bool __v>
+using __bool_constant = integral_constant<bool, __v>;
+
+#if __cplusplus > 201402L
+# define __cpp_lib_bool_constant 201505
+  template<bool __v>
+    using bool_constant = integral_constant<bool, __v>;
+#endif
+
+template<bool, typename, typename>
+struct conditional;
+
+template <typename _Type>
+struct __type_identity
+{ using type = _Type; };
+
+template<typename _Tp>
+using __type_identity_t = typename __type_identity<_Tp>::type;
+
+template<typename...>
+struct __or_;
+
+template<>
+struct __or_<>
+        : public false_type
+{ };
+
+template<typename _B1>
+struct __or_<_B1>
+        : public _B1
+{ };
+
+template<typename _B1, typename _B2>
+struct __or_<_B1, _B2>
+        : public conditional<_B1::value, _B1, _B2>::type
+{ };
+
+template<typename _B1, typename _B2, typename _B3, typename... _Bn>
+struct __or_<_B1, _B2, _B3, _Bn...>
+        : public conditional<_B1::value, _B1, __or_<_B2, _B3, _Bn...>>::type
+{ };
+
+template<typename...>
+struct __and_;
+
+template<>
+struct __and_<>
+        : public true_type
+{ };
+
+template<typename _B1>
+struct __and_<_B1>
+        : public _B1
+{ };
+
+template<typename _B1, typename _B2>
+struct __and_<_B1, _B2>
+        : public conditional<_B1::value, _B2, _B1>::type
+{ };
+
+template<typename _B1, typename _B2, typename _B3, typename... _Bn>
+struct __and_<_B1, _B2, _B3, _Bn...>
+        : public conditional<_B1::value, __and_<_B2, _B3, _Bn...>, _B1>::type
+{ };
+
+template<typename _Pp>
+struct __not_
+        : public __bool_constant<!bool(_Pp::value)>
+{ };
+
+
+
+}
+
+
+
+#endif
+
